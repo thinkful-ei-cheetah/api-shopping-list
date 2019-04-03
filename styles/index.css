@@ -53,3 +53,21 @@ button:hover:disabled {
 .shopping-item__checked {
   text-decoration: line-through;
 }
+
+.js-error-message {
+  color: red;
+  padding: 15px;
+  border: 1px solid black;
+  position: relative;
+}
+
+.js-close-error {
+  display: inline-block;
+  position: absolute;
+  right: 12px;
+  bottom: 9px;
+}
+
+.hidden {
+  display: none;
+}

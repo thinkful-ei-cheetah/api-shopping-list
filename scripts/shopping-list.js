@@ -40,9 +40,23 @@ const shoppingList = (function(){
     const items = shoppingList.map((item) => generateItemElement(item));
     return items.join('');
   }
+
+  function buildErrorHtml(error) {
+    return `
+      ${error}
+      <button class='js-close-error' type='button'>X</button>
+    `;
+  }
   
   
   function render() {
+    // if there is an error, display
+    if (store.error) {
+      const errorTemplate = buildErrorHtml(store.error);
+      $('.js-error-message').html(errorTemplate);
+      $('.js-error-message').toggleClass('hidden');
+      return;
+    }
     // Filter item list if store prop is true by item.checked === false
     let items = [ ...store.items ];
     if (store.hideCheckedItems) {
@@ -70,9 +84,12 @@ const shoppingList = (function(){
       $('.js-shopping-list-entry').val('');
 
       api.createItem(newItemName)
-        .then(res => res.json())
         .then(item => {
           store.addItem(item);
+          render();
+        })
+        .catch(error => {
+          store.error = error.message;
           render();
         });
     });
@@ -91,11 +108,14 @@ const shoppingList = (function(){
       const toggleChecked = !item.checked;
 
       api.updateItem(id, {checked: toggleChecked})
-        .then(res => res.json())
         .then(() => {
           store.findAndUpdate(id, {checked: toggleChecked});
           render();
-        }); 
+        })
+        .catch(error => {
+          store.error = error.message;
+          render();
+        });
     });
   }
   
@@ -106,9 +126,12 @@ const shoppingList = (function(){
       const id = getItemIdFromElement(event.currentTarget);
 
       api.deleteItem(id)
-        .then(res => res.json())
         .then(() => {
           store.findAndDelete(id);
+          render();
+        })
+        .catch(error => {
+          store.error = error.message;
           render();
         });
     });
@@ -121,11 +144,14 @@ const shoppingList = (function(){
       const itemName = $(event.currentTarget).find('.shopping-item').val();
 
       api.updateItem(id, {name: itemName})
-        .then(res => res.json())
         .then(() => {
           store.findAndUpdate(id, {name: itemName});
           render();
-        });      
+        })
+        .catch(error => {
+          store.error = error.message;
+          render();
+        });
     });
   }
   
@@ -151,6 +177,12 @@ const shoppingList = (function(){
       render();
     });
   }
+
+  function handleCloseError() {
+    $('.js-error-message').on('click', '.js-close-error', function(){
+      $(this).parent().toggleClass('hidden');
+    });
+  }
   
   function bindEventListeners() {
     handleNewItemSubmit();
@@ -160,6 +192,7 @@ const shoppingList = (function(){
     handleToggleFilterClick();
     handleShoppingListSearch();
     handleItemStartEditing();
+    handleCloseError();
   }
 
   // This object contains the only exposed methods from this module:

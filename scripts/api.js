@@ -5,15 +5,33 @@ const api = (function(){
 
   const BASE_URL = 'https://thinkful-list-api.herokuapp.com/verdi';
  
+  const fetchList = function(...args) {
+    let error;
+    return fetch(...args)
+      .then(res => {
+        if (!res.ok) {
+          error = {code: res.status};
+        }
+        return res.json();
+      })
+      .then(jsonData => {
+        if (error) {
+          error.message = jsonData.message;
+          return Promise.reject(error);
+        }
+        return jsonData;
+      });
+  };
+  
   const getItems = function(){
-    return fetch(`${BASE_URL}/items`);
+    return fetchList(`${BASE_URL}/items`);
   };
 
   const createItem = function(name){
     const newItem = {name};
     const stringifiedItem = JSON.stringify(newItem);
 
-    return fetch(`${BASE_URL}/items`, {
+    return fetchList(`${BASE_URL}/items`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: stringifiedItem
@@ -21,7 +39,7 @@ const api = (function(){
   };
 
   const updateItem = function(id, updateData) {
-    return fetch(`${BASE_URL}/items/${id}`, {
+    return fetchList(`${BASE_URL}/items/${id}`, {
       method: 'PATCH',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(updateData)
@@ -29,8 +47,8 @@ const api = (function(){
   };
 
   const deleteItem = function(id) {
-    return fetch(`${BASE_URL}/items/${id}`, {method: 'DELETE'})
-  }
+    return fetchList(`${BASE_URL}/items/${id}`, {method: 'DELETE'});
+  };
   
   return {
     getItems,
