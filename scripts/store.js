@@ -23,8 +23,8 @@ const store = (function(){
 
   const findAndUpdate = function(id, newData) {
     const foundItem = this.items.find(item => item.id === id);
-    Object.assign(foundItem, newData)
-  }
+    Object.assign(foundItem, newData);
+  };
   // const findAndUpdateName = function(id, name) {
   //   try {
   //     Item.validateName(name);
